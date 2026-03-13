@@ -3,44 +3,36 @@
 extern void SystemInit(void);
 extern int main(void);
 
-/* linker script exported symbols */
-extern uint8_t __stack_top__[];
-extern uint8_t __data_start__[];
-extern uint8_t __data_end__[];
-extern uint8_t __bss_start__[];
-extern uint8_t __bss_end__[];
-extern uint8_t __heap_start__[];
-extern uint8_t __heap_end__[];
-extern uint8_t __data_load__[];
-
+extern uint32_t _rdata, __data_start__, __data_end__;
+extern uint32_t __bss_start__, __bss_end__;
+extern uint32_t __stack_end__;
+extern uint32_t __heap_end__;
 
 void __attribute__((weak)) SerialInit()
 {
 }
 
-/* Reset Handler */
+//  Reset Handler
 void Reset_Handler(void)
 {
-    uint8_t *src = __data_load__;
-    uint8_t *dst = __data_start__;
+    uint32_t *src, *dst;
 
-    /* 1. copy .data from FLASH to RAM */
-    while (dst < __data_end__) {
+    src = &_rdata;
+    dst = &__data_start__;
+    while (dst < &__data_end__)
+    {
         *dst++ = *src++;
     }
 
-    /* 2. zero initialize .bss */
-    for (dst = __bss_start__; dst < __bss_end__; ++dst) {
-        *dst = 0;
+    dst = &__bss_start__;
+    while (dst < &__bss_end__)
+    {
+        *dst++ = 0;
     }
 
     SystemInit();
     SerialInit();
-    (void)main();
-
-    /* main should never return in bare-metal */
-    while (1) {
-    }
+    main();
 }
 
 void Null_Handler()
@@ -155,114 +147,114 @@ void __attribute__((weak, alias("Null_Handler"))) TLI_IRQHandler(void);         
 void __attribute__((weak, alias("Null_Handler"))) TLI_ER_IRQHandler(void);                 //  105:TLI Error
 void __attribute__((weak, alias("Null_Handler"))) IPA_IRQHandler(void);                    //  106:IPA
 
-const uintptr_t __attribute__((used, section(".isr_vector"), aligned(256))) __isr_vector[] = {
-    (uintptr_t)__stack_top__,
-    (uintptr_t)Reset_Handler,
-    (uintptr_t)NMI_Handler,
-    (uintptr_t)HardFault_Handler,
-    (uintptr_t)MemManage_Handler,
-    (uintptr_t)BusFault_Handler,
-    (uintptr_t)UsageFault_Handler,
-    (uintptr_t)0,
-    (uintptr_t)0,
-    (uintptr_t)0,
-    (uintptr_t)0,
-    (uintptr_t)SVC_Handler,
-    (uintptr_t)DebugMon_Handler,
-    (uintptr_t)0,
-    (uintptr_t)PendSV_Handler,
-    (uintptr_t)SysTick_Handler,
+const uint32_t __attribute__((section(".isr_vector"))) __isr_vector[] = {
+    (uint32_t)&__stack_end__,
+    (uint32_t)Reset_Handler,      //  Reset Handler
+    (uint32_t)NMI_Handler,        //  NMI Handler
+    (uint32_t)HardFault_Handler,  //  Hard Fault Handler
+    (uint32_t)MemManage_Handler,  //  MPU Fault Handler
+    (uint32_t)BusFault_Handler,   //  Bus Fault Handler
+    (uint32_t)UsageFault_Handler, //  Usage Fault Handler
+    (uint32_t)0,                  //  Reserved
+    (uint32_t)0,                  //  Reserved
+    (uint32_t)0,                  //  Reserved
+    (uint32_t)0,                  //  Reserved
+    (uint32_t)SVC_Handler,        //  SVCall Handler
+    (uint32_t)DebugMon_Handler,   //  Debug Monitor Handler
+    (uint32_t)0,                  //  Reserved
+    (uint32_t)PendSV_Handler,     //  PendSV Handler
+    (uint32_t)SysTick_Handler,    //  SysTick Handler
 
-    /* external interrupts */
-    (uintptr_t)WWDGT_IRQHandler,                  /* 16 */
-    (uintptr_t)LVD_IRQHandler,                    /* 17 */
-    (uintptr_t)TAMPER_STAMP_IRQHandler,           /* 18 */
-    (uintptr_t)RTC_WKUP_IRQHandler,               /* 19 */
-    (uintptr_t)FMC_IRQHandler,                    /* 20 */
-    (uintptr_t)RCU_CTC_IRQHandler,                /* 21 */
-    (uintptr_t)EXTI0_IRQHandler,                  /* 22 */
-    (uintptr_t)EXTI1_IRQHandler,                  /* 23 */
-    (uintptr_t)EXTI2_IRQHandler,                  /* 24 */
-    (uintptr_t)EXTI3_IRQHandler,                  /* 25 */
-    (uintptr_t)EXTI4_IRQHandler,                  /* 26 */
-    (uintptr_t)DMA0_Channel0_IRQHandler,          /* 27 */
-    (uintptr_t)DMA0_Channel1_IRQHandler,          /* 28 */
-    (uintptr_t)DMA0_Channel2_IRQHandler,          /* 29 */
-    (uintptr_t)DMA0_Channel3_IRQHandler,          /* 30 */
-    (uintptr_t)DMA0_Channel4_IRQHandler,          /* 31 */
-    (uintptr_t)DMA0_Channel5_IRQHandler,          /* 32 */
-    (uintptr_t)DMA0_Channel6_IRQHandler,          /* 33 */
-    (uintptr_t)ADC_IRQHandler,                    /* 34 */
-    (uintptr_t)CAN0_TX_IRQHandler,                /* 35 */
-    (uintptr_t)CAN0_RX0_IRQHandler,               /* 36 */
-    (uintptr_t)CAN0_RX1_IRQHandler,               /* 37 */
-    (uintptr_t)CAN0_EWMC_IRQHandler,              /* 38 */
-    (uintptr_t)EXTI5_9_IRQHandler,                /* 39 */
-    (uintptr_t)TIMER0_BRK_TIMER8_IRQHandler,      /* 40 */
-    (uintptr_t)TIMER0_UP_TIMER9_IRQHandler,       /* 41 */
-    (uintptr_t)TIMER0_TRG_CMT_TIMER10_IRQHandler, /* 42 */
-    (uintptr_t)TIMER0_Channel_IRQHandler,         /* 43 */
-    (uintptr_t)TIMER1_IRQHandler,                 /* 44 */
-    (uintptr_t)TIMER2_IRQHandler,                 /* 45 */
-    (uintptr_t)TIMER3_IRQHandler,                 /* 46 */
-    (uintptr_t)I2C0_EV_IRQHandler,                /* 47 */
-    (uintptr_t)I2C0_ER_IRQHandler,                /* 48 */
-    (uintptr_t)I2C1_EV_IRQHandler,                /* 49 */
-    (uintptr_t)I2C1_ER_IRQHandler,                /* 50 */
-    (uintptr_t)SPI0_IRQHandler,                   /* 51 */
-    (uintptr_t)SPI1_IRQHandler,                   /* 52 */
-    (uintptr_t)USART0_IRQHandler,                 /* 53 */
-    (uintptr_t)USART1_IRQHandler,                 /* 54 */
-    (uintptr_t)USART2_IRQHandler,                 /* 55 */
-    (uintptr_t)EXTI10_15_IRQHandler,              /* 56 */
-    (uintptr_t)RTC_Alarm_IRQHandler,              /* 57 */
-    (uintptr_t)USBFS_WKUP_IRQHandler,             /* 58 */
-    (uintptr_t)TIMER7_BRK_TIMER11_IRQHandler,     /* 59 */
-    (uintptr_t)TIMER7_UP_TIMER12_IRQHandler,      /* 60 */
-    (uintptr_t)TIMER7_TRG_CMT_TIMER13_IRQHandler, /* 61 */
-    (uintptr_t)TIMER7_Channel_IRQHandler,         /* 62 */
-    (uintptr_t)DMA0_Channel7_IRQHandler,          /* 63 */
-    (uintptr_t)EXMC_IRQHandler,                   /* 64 */
-    (uintptr_t)SDIO_IRQHandler,                   /* 65 */
-    (uintptr_t)TIMER4_IRQHandler,                 /* 66 */
-    (uintptr_t)SPI2_IRQHandler,                   /* 67 */
-    (uintptr_t)UART3_IRQHandler,                  /* 68 */
-    (uintptr_t)UART4_IRQHandler,                  /* 69 */
-    (uintptr_t)TIMER5_DAC_IRQHandler,             /* 70 */
-    (uintptr_t)TIMER6_IRQHandler,                 /* 71 */
-    (uintptr_t)DMA1_Channel0_IRQHandler,          /* 72 */
-    (uintptr_t)DMA1_Channel1_IRQHandler,          /* 73 */
-    (uintptr_t)DMA1_Channel2_IRQHandler,          /* 74 */
-    (uintptr_t)DMA1_Channel3_IRQHandler,          /* 75 */
-    (uintptr_t)DMA1_Channel4_IRQHandler,          /* 76 */
-    (uintptr_t)ENET_IRQHandler,                   /* 77 */
-    (uintptr_t)ENET_WKUP_IRQHandler,              /* 78 */
-    (uintptr_t)CAN1_TX_IRQHandler,                /* 79 */
-    (uintptr_t)CAN1_RX0_IRQHandler,               /* 80 */
-    (uintptr_t)CAN1_RX1_IRQHandler,               /* 81 */
-    (uintptr_t)CAN1_EWMC_IRQHandler,              /* 82 */
-    (uintptr_t)USBFS_IRQHandler,                  /* 83 */
-    (uintptr_t)DMA1_Channel5_IRQHandler,          /* 84 */
-    (uintptr_t)DMA1_Channel6_IRQHandler,          /* 85 */
-    (uintptr_t)DMA1_Channel7_IRQHandler,          /* 86 */
-    (uintptr_t)USART5_IRQHandler,                 /* 87 */
-    (uintptr_t)I2C2_EV_IRQHandler,                /* 88 */
-    (uintptr_t)I2C2_ER_IRQHandler,                /* 89 */
-    (uintptr_t)USBHS_EP1_Out_IRQHandler,          /* 90 */
-    (uintptr_t)USBHS_EP1_In_IRQHandler,           /* 91 */
-    (uintptr_t)USBHS_WKUP_IRQHandler,             /* 92 */
-    (uintptr_t)USBHS_IRQHandler,                  /* 93 */
-    (uintptr_t)DCI_IRQHandler,                    /* 94 */
-    (uintptr_t)0,                                 /* 95 Reserved */
-    (uintptr_t)TRNG_IRQHandler,                   /* 96 */
-    (uintptr_t)FPU_IRQHandler,                    /* 97 */
-    (uintptr_t)UART6_IRQHandler,                  /* 98 */
-    (uintptr_t)UART7_IRQHandler,                  /* 99 */
-    (uintptr_t)SPI3_IRQHandler,                   /* 100 */
-    (uintptr_t)SPI4_IRQHandler,                   /* 101 */
-    (uintptr_t)SPI5_IRQHandler,                   /* 102 */
-    (uintptr_t)0,                                 /* 103 Reserved */
-    (uintptr_t)TLI_IRQHandler,                    /* 104 */
-    (uintptr_t)TLI_ER_IRQHandler,                 /* 105 */
-    (uintptr_t)IPA_IRQHandler                     /* 106 */
+    /* external interrupts handler */
+    (uint32_t)WWDGT_IRQHandler,                  //  16:Window Watchdog Timer
+    (uint32_t)LVD_IRQHandler,                    //  17:LVD through EXTI Line detect
+    (uint32_t)TAMPER_STAMP_IRQHandler,           //  18:Tamper and TimeStamp through EXTI Line detect
+    (uint32_t)RTC_WKUP_IRQHandler,               //  19:RTC Wakeup through EXTI Line
+    (uint32_t)FMC_IRQHandler,                    //  20:FMC
+    (uint32_t)RCU_CTC_IRQHandler,                //  21:RCU and CTC
+    (uint32_t)EXTI0_IRQHandler,                  //  22:EXTI Line 0
+    (uint32_t)EXTI1_IRQHandler,                  //  23:EXTI Line 1
+    (uint32_t)EXTI2_IRQHandler,                  //  24:EXTI Line 2
+    (uint32_t)EXTI3_IRQHandler,                  //  25:EXTI Line 3
+    (uint32_t)EXTI4_IRQHandler,                  //  26:EXTI Line 4
+    (uint32_t)DMA0_Channel0_IRQHandler,          //  27:DMA0 Channel0
+    (uint32_t)DMA0_Channel1_IRQHandler,          //  28:DMA0 Channel1
+    (uint32_t)DMA0_Channel2_IRQHandler,          //  29:DMA0 Channel2
+    (uint32_t)DMA0_Channel3_IRQHandler,          //  30:DMA0 Channel3
+    (uint32_t)DMA0_Channel4_IRQHandler,          //  31:DMA0 Channel4
+    (uint32_t)DMA0_Channel5_IRQHandler,          //  32:DMA0 Channel5
+    (uint32_t)DMA0_Channel6_IRQHandler,          //  33:DMA0 Channel6
+    (uint32_t)ADC_IRQHandler,                    //  34:ADC
+    (uint32_t)CAN0_TX_IRQHandler,                //  35:CAN0 TX
+    (uint32_t)CAN0_RX0_IRQHandler,               //  36:CAN0 RX0
+    (uint32_t)CAN0_RX1_IRQHandler,               //  37:CAN0 RX1
+    (uint32_t)CAN0_EWMC_IRQHandler,              //  38:CAN0 EWMC
+    (uint32_t)EXTI5_9_IRQHandler,                //  39:EXTI5 to EXTI9
+    (uint32_t)TIMER0_BRK_TIMER8_IRQHandler,      //  40:TIMER0 Break and TIMER8
+    (uint32_t)TIMER0_UP_TIMER9_IRQHandler,       //  41:TIMER0 Update and TIMER9
+    (uint32_t)TIMER0_TRG_CMT_TIMER10_IRQHandler, //  42:TIMER0 Trigger and Commutation and TIMER10
+    (uint32_t)TIMER0_Channel_IRQHandler,         //  43:TIMER0 Capture Compare
+    (uint32_t)TIMER1_IRQHandler,                 //  44:TIMER1
+    (uint32_t)TIMER2_IRQHandler,                 //  45:TIMER2
+    (uint32_t)TIMER3_IRQHandler,                 //  46:TIMER3
+    (uint32_t)I2C0_EV_IRQHandler,                //  47:I2C0 Event
+    (uint32_t)I2C0_ER_IRQHandler,                //  48:I2C0 Error
+    (uint32_t)I2C1_EV_IRQHandler,                //  49:I2C1 Event
+    (uint32_t)I2C1_ER_IRQHandler,                //  50:I2C1 Error
+    (uint32_t)SPI0_IRQHandler,                   //  51:SPI0
+    (uint32_t)SPI1_IRQHandler,                   //  52:SPI1
+    (uint32_t)USART0_IRQHandler,                 //  53:USART0
+    (uint32_t)USART1_IRQHandler,                 //  54:USART1
+    (uint32_t)USART2_IRQHandler,                 //  55:USART2
+    (uint32_t)EXTI10_15_IRQHandler,              //  56:EXTI10 to EXTI15
+    (uint32_t)RTC_Alarm_IRQHandler,              //  57:RTC Alarm
+    (uint32_t)USBFS_WKUP_IRQHandler,             //  58:USBFS Wakeup
+    (uint32_t)TIMER7_BRK_TIMER11_IRQHandler,     //  59:TIMER7 Break and TIMER11
+    (uint32_t)TIMER7_UP_TIMER12_IRQHandler,      //  60:TIMER7 Update and TIMER12
+    (uint32_t)TIMER7_TRG_CMT_TIMER13_IRQHandler, //  61:TIMER7 Trigger and Commutation and TIMER13
+    (uint32_t)TIMER7_Channel_IRQHandler,         //  62:TIMER7 Channel Capture Compare
+    (uint32_t)DMA0_Channel7_IRQHandler,          //  63:DMA0 Channel7
+    (uint32_t)EXMC_IRQHandler,                   //  64:EXMC
+    (uint32_t)SDIO_IRQHandler,                   //  65:SDIO
+    (uint32_t)TIMER4_IRQHandler,                 //  66:TIMER4
+    (uint32_t)SPI2_IRQHandler,                   //  67:SPI2
+    (uint32_t)UART3_IRQHandler,                  //  68:UART3
+    (uint32_t)UART4_IRQHandler,                  //  69:UART4
+    (uint32_t)TIMER5_DAC_IRQHandler,             //  70:TIMER5 and DAC0 DAC1 Underrun error
+    (uint32_t)TIMER6_IRQHandler,                 //  71:TIMER6
+    (uint32_t)DMA1_Channel0_IRQHandler,          //  72:DMA1 Channel0
+    (uint32_t)DMA1_Channel1_IRQHandler,          //  73:DMA1 Channel1
+    (uint32_t)DMA1_Channel2_IRQHandler,          //  74:DMA1 Channel2
+    (uint32_t)DMA1_Channel3_IRQHandler,          //  75:DMA1 Channel3
+    (uint32_t)DMA1_Channel4_IRQHandler,          //  76:DMA1 Channel4
+    (uint32_t)ENET_IRQHandler,                   //  77:Ethernet
+    (uint32_t)ENET_WKUP_IRQHandler,              //  78:Ethernet Wakeup through EXTI Line
+    (uint32_t)CAN1_TX_IRQHandler,                //  79:CAN1 TX
+    (uint32_t)CAN1_RX0_IRQHandler,               //  80:CAN1 RX0
+    (uint32_t)CAN1_RX1_IRQHandler,               //  81:CAN1 RX1
+    (uint32_t)CAN1_EWMC_IRQHandler,              //  82:CAN1 EWMC
+    (uint32_t)USBFS_IRQHandler,                  //  83:USBFS
+    (uint32_t)DMA1_Channel5_IRQHandler,          //  84:DMA1 Channel5
+    (uint32_t)DMA1_Channel6_IRQHandler,          //  85:DMA1 Channel6
+    (uint32_t)DMA1_Channel7_IRQHandler,          //  86:DMA1 Channel7
+    (uint32_t)USART5_IRQHandler,                 //  87:USART5
+    (uint32_t)I2C2_EV_IRQHandler,                //  88:I2C2 Event
+    (uint32_t)I2C2_ER_IRQHandler,                //  89:I2C2 Error
+    (uint32_t)USBHS_EP1_Out_IRQHandler,          //  90:USBHS Endpoint 1 Out
+    (uint32_t)USBHS_EP1_In_IRQHandler,           //  91:USBHS Endpoint 1 in
+    (uint32_t)USBHS_WKUP_IRQHandler,             //  92:USBHS Wakeup through EXTI Line
+    (uint32_t)USBHS_IRQHandler,                  //  93:USBHS
+    (uint32_t)DCI_IRQHandler,                    //  94:DCI
+    (uint32_t)0,                                 //  95:Reserved
+    (uint32_t)TRNG_IRQHandler,                   //  96:TRNG
+    (uint32_t)FPU_IRQHandler,                    //  97:FPU
+    (uint32_t)UART6_IRQHandler,                  //  98:UART6
+    (uint32_t)UART7_IRQHandler,                  //  99:UART7
+    (uint32_t)SPI3_IRQHandler,                   //  100:SPI3
+    (uint32_t)SPI4_IRQHandler,                   //  101:SPI4
+    (uint32_t)SPI5_IRQHandler,                   //  102:SPI5
+    (uint32_t)0,                                 //  103:Reserved
+    (uint32_t)TLI_IRQHandler,                    //  104:TLI
+    (uint32_t)TLI_ER_IRQHandler,                 //  105:TLI Error
+    (uint32_t)IPA_IRQHandler,                    //  106:IPA
 };

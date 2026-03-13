@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug (OpenOCD)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "servertype": "openocd",
+            "executable": "${command:cmake.launchTargetPath}",
+            "configFiles": [
+                "${workspaceFolder}/debug/openocd/lspi-gcc.cfg"
+            ],
+            "svdFile": "${workspaceFolder}/debug/GD32F4xx.svd",
+            "runToEntryPoint": "main",
+            "preLaunchTask": "CMake: build",
+            "showDevDebugOutput": "parsed"
+        }
+    ]
+}

@@ -14,20 +14,27 @@
             "cacheVariables": {
                 "CMAKE_SYSTEM_NAME": "Generic-ELF",
                 "CMAKE_SYSTEM_PROCESSOR": "arm",
+                "CMAKE_TRY_COMPILE_TARGET_TYPE": "STATIC_LIBRARY",
                 "CMAKE_C_COMPILER": "arm-none-eabi-gcc",
                 "CMAKE_CXX_COMPILER": "arm-none-eabi-g++",
                 "CMAKE_ASM_COMPILER": "arm-none-eabi-as",
                 "CMAKE_C_COMPILER_WORKS": true,
                 "CMAKE_CXX_COMPILER_WORKS": true,
-                "CMAKE_ASM_COMPILER_WORKS": true
+                "CMAKE_ASM_COMPILER_WORKS": true,
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
         },
         {
             "name": "gd32f4xx",
             "hidden": true,
             "cacheVariables": {
-                "CMAKE_C_FLAGS": "-mthumb -mcpu=cortex-m4 -mfloat-abi=soft -fno-builtin -fno-strict-aliasing -fdata-sections -fms-extensions -ffunction-sections -Os",
-                "CMAKE_CXX_FLAGS": "-mthumb -mcpu=cortex-m4 -mfloat-abi=soft -fno-builtin -fno-exceptions -fno-strict-aliasing -fdata-sections -fms-extensions -ffunction-sections -Os"
+                "CMAKE_C_FLAGS": "-mthumb -mcpu=cortex-m4 -mfloat-abi=soft -fno-builtin -fno-strict-aliasing -fdata-sections -fms-extensions -ffunction-sections",
+                "CMAKE_CXX_FLAGS": "-mthumb -mcpu=cortex-m4 -mfloat-abi=soft -fno-builtin -fno-exceptions -fno-strict-aliasing -fdata-sections -fms-extensions -ffunction-sections",
+                "CMAKE_C_FLAGS_DEBUG": "-Og -g3",
+                "CMAKE_CXX_FLAGS_DEBUG": "-Og -g3",
+                "CMAKE_ASM_FLAGS_DEBUG": "-g3",
+                "CMAKE_C_FLAGS_RELEASE": "-Os -g0",
+                "CMAKE_CXX_FLAGS_RELEASE": "-Os -g0"
             }
         },
         {
